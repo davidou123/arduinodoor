@@ -7,8 +7,7 @@ byte ip[] = { 192, 168, 2, 177 };
 EthernetServer server(80);
 int pinup=2;   
 int pinstop=3;   
-int pindown=4;   
-int pin=7;   
+int pindown=4;    
 String readString = String(50);
 
  
