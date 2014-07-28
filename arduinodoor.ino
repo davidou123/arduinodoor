@@ -8,13 +8,16 @@ EthernetServer server(80);
 int pinup=2;   
 int pinstop=3;   
 int pindown=4;   
+int pin=7;   
 String readString = String(50);
 
  
 
 void setup(){
   Ethernet.begin(mac, ip);
-  pinMode(pin, OUTPUT);
+  pinMode(pinup, OUTPUT);
+  pinMode(pinstop, OUTPUT);
+  pinMode(pindown, OUTPUT);
   server.begin();
   Serial.begin(9600);
 }
@@ -27,29 +30,54 @@ void loop(){
     char c = client.read();
       readString.concat(c);
       //　資料處理區
+        Serial.print("f");
+            
       if (c == '\n')
             {
-         if (readString.substring(6,11) == "pw=1")
-         {
-
-         digitalWrite(pin, HIGH);   
-
-         }
-         else if (readString.substring(6,12) == "pw=2")
-        {
-
-         digitalWrite(pin, LOW);    
-        }
-// 　網頁開始
+                Serial.println(readString.substring(6,11));
+            if (readString.substring(6,10) == "pw=0")
+               {
+                   Serial.println("鐵捲門開");
+                 digitalWrite(pinup, HIGH);   
+                 digitalWrite(pinstop, LOW);    
+                 digitalWrite(pindown, LOW);    
+                 delay(2000);
+               }
+             else if (readString.substring(6,10) == "pw=1")
+               {
+                   Serial.println("鐵捲門停");
+                 digitalWrite(pinstop, HIGH);   
+                 digitalWrite(pinup, LOW);    
+                 digitalWrite(pindown, LOW);    
+                 delay(2000);
+               }
+           else if (readString.substring(6,10) == "pw=2")
+              {
+               Serial.println("鐵捲門關");
+               digitalWrite(pindown, HIGH);      
+               digitalWrite(pinup, LOW);    
+               digitalWrite(pinstop, LOW);    
+               delay(2000);  
+            }
+           else
+              {
+                 Serial.println("等待中全部停止狀態");
+                 digitalWrite(pinup, LOW); 
+                 digitalWrite(pinstop, LOW);    
+                 digitalWrite(pindown, LOW);  
+              }
+               digitalRead(pinup);
+// 　  網頁開始
           client.println("HTTP/1.1 200 OK");
           client.println("Content-Type: text/html");
-          client.println("Connection: close");  // the connection will be closed after completion of the response
+//          client.println("Connection: close");  // the connection will be closed after completion of the response
           client.println();
           client.println("<!DOCTYPE HTML>");
           client.println("<html><meta charset='utf-8' /><link type='text/css' rel='stylesheet' href='http://211.75.72.240/home/home.css' >");
           client.println("<link href='//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css' rel='stylesheet'>");
           client.println("<img src='http://211.75.72.240/home/bg.jpg' id='bgImage' style='margin-left: 0px;'>");
           // output the value of each analog input pin
+             client.println(readString.substring(6,10));
           client.print("<div id='lights'>                                                             ");
           client.print("    <ul>                                                                      ");
           client.print("      <li><a href='?pw=0'><span class='sw on'>ON</span>電捲門上</a></li>      ");
@@ -60,7 +88,7 @@ void loop(){
           client.print("    </ul>                                                                     ");
           client.print("</div>                                                                        ");
 
-   client.println(readString.substring(6,11));
+
 
                   client.println("</html>");
         readString="";
